@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import sys
 
-def checkFlag(lookup, row, col, score, steps):
+def checkFlag(lookup, row, col):
     def isFlag():
         print("checking flag")
-        return (lookup[row][col] == "F")
+        if lookup[row][col] == 'O':
+            return True
+        return False    
     if(isFlag()):
-        score += 5
-        steps += 1
         print("FOUND FLAG")
         return True
     return False
@@ -16,28 +16,36 @@ def bestPath(matrix, n, pace):
     score = 0 
     steps = 0
     
-    lookup = [[0 for i in range(0, n)] for j in range(n)]
+    lookup = [[0 for _ in range(n)] for _ in range(n)]
 
     currentCol = 0
-    for row in range(0, n):
+    print('n received as', n)
+    for row in range(0, n+1):
         if row == n or currentCol == n:
-            return score
-        
+            return steps, score//5
+        print("Column equals:", currentCol, "Row equals:", row)
         lookup[row][currentCol] = matrix[row][currentCol]
 
+        print("Score is currently:", score)
+        print("Steps is currently:", steps)
         if currentCol != n-1: 
-            checkFlag(lookup, row, currentCol, score, steps)
-            if lookup[row][currentCol+1] == 'O':
+            if checkFlag(lookup, row, currentCol): 
+                score += 5
+                steps += 1
+            elif lookup[row][currentCol+1] == 'O':
+               print("OBSTACLE!")
                steps += 3
-            if lookup[row][currentCol+1] == '.':
+            else:
                 steps += 1
             currentCol += 1
             print("Column", currentCol, "Row", row)
         elif row != n-1:
-            checkFlag(lookup, row, currentCol, score, steps)
-            if lookup[row+1][currentCol] == 'O':
+            if checkFlag(lookup, row, currentCol):
+                score += 5
+                steps += 1
+            elif lookup[row+1][currentCol] == 'O':
                steps += 3
-            if lookup[row+1][currentCol] == '.':
+            else:
                 steps += 1
             row += 1
             print("Column", currentCol, "Row", row)
@@ -45,8 +53,15 @@ def bestPath(matrix, n, pace):
 def main():
     n = int(input())
     pace = int(input())
-    matrix = [[x for x in input().split()] for _ in range(n)]
+    matrix = [[x for x in input()] for _ in range(n)]
     
+    print('N', n, 'Pace', pace)
+    print('size of matrix', len(matrix))
+    
+    for i in range(0, n):
+        for j in range(0, n):
+            print(matrix[i][j], end="")
+        print()
     # print("MATRIX\n", matrix)
     print(bestPath(matrix, n, pace))
 
